@@ -1,11 +1,7 @@
 import argparse
 import logging
 
-from smart_review.control.controller import (
-    AuthenticationInformation,
-    Controller,
-    Options,
-)
+from smart_review.control.controller import AuthenticationInformation, Controller, Options
 from smart_review.exceptions import SmartReviewSystemException
 
 logger = logging.getLogger(__name__)

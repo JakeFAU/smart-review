@@ -3,7 +3,7 @@ import logging
 from typing import Dict, List
 
 import github
-import requests
+import requests  # type: ignore[import-untyped]
 from attrs import define, field, validators
 from github.Branch import Branch
 from github.Commit import Commit

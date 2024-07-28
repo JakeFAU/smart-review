@@ -11,7 +11,7 @@
 		"ghcr.io/hspaans/devcontainer-features/pytest:1": {}
 	},
 	"postCreateCommand": "pip3 install --upgrade pip && pip3 install --user -r requirements.txt",
-	"remoteUser": "root",
+	"remoteUser": "jbourne",
 	"customizations": {
 		"vscode": {
 			"extensions": [

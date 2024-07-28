@@ -1,3 +1,6 @@
+from unittest.mock import MagicMock, create_autospec, patch
+
+import github
 import github.Branch
 import github.Commit
 import github.ContentFile
@@ -7,12 +10,11 @@ import github.PullRequestComment
 import github.PullRequestReview
 import github.Repository
 import pytest
-from unittest.mock import patch, MagicMock, create_autospec
-import github
-from src.smart_review.gitops.github import (
+
+from src.smart_review.gitops.github import (  # Adjust import according to your module
     GitHubClient,
     NegativeInformation,
-)  # Adjust import according to your module
+)
 
 
 @pytest.fixture

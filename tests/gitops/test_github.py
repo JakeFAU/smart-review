@@ -9,8 +9,6 @@ import github.Repository
 import pytest
 from unittest.mock import patch, MagicMock, create_autospec
 import github
-import requests
-from src.smart_review.exceptions import SmartReviewGithubException
 from src.smart_review.gitops.github import (
     GitHubClient,
     NegativeInformation,
@@ -18,7 +16,7 @@ from src.smart_review.gitops.github import (
 
 
 @pytest.fixture
-def mock_pr():
+def mock_pr() -> MagicMock:
     mock_pr = MagicMock(spec=github.PullRequest.PullRequest, instance=True)
     mock_pr.get_commits.return_value = [MagicMock(spec=github.Commit.Commit, instance=True)]
     mock_pr.create_review.return_value = MagicMock(
@@ -31,7 +29,7 @@ def mock_pr():
 
 
 @pytest.fixture
-def mock_repo(mock_pr):
+def mock_repo(mock_pr) -> MagicMock:
     mock_repo = MagicMock(spec=github.Repository.Repository, instance=True)
     mock_repo.get_pull.return_value = mock_pr
     mock_repo.get_contents.return_value = MagicMock(
@@ -43,7 +41,7 @@ def mock_repo(mock_pr):
 
 
 @pytest.fixture
-def mock_github(mock_repo):
+def mock_github(mock_repo) -> MagicMock:
     mock_github = create_autospec(github.Github, instance=True)
     mock_github.api_key = "fake_api"
     mock_github.repo_name = "repo"
@@ -121,17 +119,17 @@ def test_client_source_branch(mock_github_client, mock_pr, mock_repo):
     assert branch == mock_branch
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_get_diff_text(mock_get, mock_github_client, mock_pr, mock_repo):
     # Set up mock branch refs
     mock_source_branch = MagicMock()
     mock_destination_branch = MagicMock()
     mock_source_branch.name = "feature"
     mock_destination_branch.name = "main"
-    
+
     # Set up the mocked methods to return the mock branches
     mock_repo.get_branch.side_effect = [mock_source_branch, mock_destination_branch]
-    
+
     # Mock the comparison
     mock_comparison = MagicMock()
     mock_comparison.diff_url = "http://diff.url"
@@ -152,28 +150,28 @@ def test_get_diff_text(mock_get, mock_github_client, mock_pr, mock_repo):
     assert diff_text == "diff text"
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_get_diff_text_error(mock_get, mock_github_client, mock_pr, mock_repo):
     # Set up mock branch refs
     mock_source_branch = MagicMock()
     mock_destination_branch = MagicMock()
     mock_source_branch.name = "feature"
     mock_destination_branch.name = "main"
-    
+
     # Set up the mocked methods to return the mock branches
     mock_repo.get_branch.side_effect = [mock_source_branch, mock_destination_branch]
-    
+
     # Mock the comparison
     mock_comparison = MagicMock()
     mock_comparison.diff_url = "http://diff.url"
     mock_repo.compare.return_value = mock_comparison
-    
+
     # Mock the response
     mock_response = MagicMock()
     mock_response.status_code = 404
     mock_response.text = "Not Found"
     mock_get.return_value = mock_response
-    
+
     with pytest.raises(Exception):
         _ = mock_github_client.diff_text
 
@@ -207,7 +205,7 @@ def test_get_pr_commits(mock_github_client, mock_pr):
     assert pr_commits == [mock_commit]
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_get_pr_file_contents(mock_get, mock_github_client):
     mock_file = MagicMock(spec=github.File.File, instance=True)
     mock_file.contents_url = "http://file.url"
@@ -227,13 +225,17 @@ def test_create_positive_review(mock_github_client, mock_pr):
     mock_pr.create_review.return_value = mock_review
 
     review = mock_github_client.create_positive_review("Looks good!")
-    mock_pr.create_review.assert_called_once_with(body="## Smart Review\n\nLooks good!", event="APPROVE")
+    mock_pr.create_review.assert_called_once_with(
+        body="## Smart Review\n\nLooks good!", event="APPROVE"
+    )
     assert review == mock_review
 
 
 def test_create_negative_review_comment(mock_github_client, mock_pr):
     mock_commit = MagicMock(spec=github.Commit.Commit, instance=True)
-    negative_info = NegativeInformation(body="Needs change", commit=mock_commit, line_no=10, path="file.py")
+    negative_info = NegativeInformation(
+        body="Needs change", commit=mock_commit, line_no=10, path="file.py"
+    )
     mock_comment = MagicMock(spec=github.PullRequestComment.PullRequestComment, instance=True)
     mock_pr.create_review_comment.return_value = mock_comment
 
@@ -266,5 +268,7 @@ def test_create_negative_review(mock_github_client, mock_pr):
         commit=mock_commit,
         as_suggestion=False,
     )
-    mock_pr.create_review.assert_called_once_with(body="## Smart Review\n\nNeeds changes overall", event="REQUEST_CHANGES")
+    mock_pr.create_review.assert_called_once_with(
+        body="## Smart Review\n\nNeeds changes overall", event="REQUEST_CHANGES"
+    )
     assert review == mock_review

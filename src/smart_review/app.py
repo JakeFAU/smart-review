@@ -1,13 +1,17 @@
 import argparse
 import logging
 
-from smart_review.control.controller import AuthenticationInformation, Controller, Options
+from smart_review.control.controller import (
+    AuthenticationInformation,
+    Controller,
+    Options,
+)
 from smart_review.exceptions import SmartReviewSystemException
 
 logger = logging.getLogger(__name__)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Smart Review CLI")
 
     auth_group = parser.add_argument_group("authentication")

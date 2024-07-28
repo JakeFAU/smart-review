@@ -35,12 +35,11 @@ class AuthenticationInformation:
         default=None,
         init=True,
         repr=False,
-        validator=validators.optional(validators.instance_of(Credentials)),
     )
 
     _llm_type: LLMType = field(init=False, repr=True, validator=validators.instance_of(LLMType))
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         if self.openai_key is None and self.credentials is None:
             raise SmartReviewSystemException(
                 exception_message="Either OpenAI key or Google credentials must be provided."
@@ -61,7 +60,10 @@ class Options:
     github_owner: str = field(init=True, repr=True, validator=validators.instance_of(str))
     github_repo: str = field(init=True, repr=True, validator=validators.instance_of(str))
     max_tokens: Optional[int] = field(
-        default=None, init=True, repr=True, validator=validators.optional(validators.ge(1))
+        default=None,
+        init=True,
+        repr=True,
+        validator=validators.optional(validators.ge(1)),
     )
     temperature: Optional[float] = field(
         default=None,
@@ -76,7 +78,10 @@ class Options:
         validator=validators.optional(validators.and_(validators.ge(0.0), validators.le(1.0))),
     )
     top_k: Optional[int] = field(
-        default=None, init=True, repr=True, validator=validators.optional(validators.ge(1))
+        default=None,
+        init=True,
+        repr=True,
+        validator=validators.optional(validators.ge(1)),
     )
     frequency_penalty: Optional[float] = field(
         default=None,
@@ -117,7 +122,9 @@ class Controller:
     _options: Options = field(init=True, repr=False, validator=validators.instance_of(Options))
 
     _auth_info: AuthenticationInformation = field(
-        init=True, repr=False, validator=validators.instance_of(AuthenticationInformation)
+        init=True,
+        repr=False,
+        validator=validators.instance_of(AuthenticationInformation),
     )
 
     @classmethod
@@ -127,7 +134,7 @@ class Controller:
         """Create a controller."""
         return Controller(_auth_info=auth_info, _options=options)  # type: ignore[call-arg]
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         # set up the github client, we always need this
         logger.debug("Setting up GitHub client.")
         self._github_client = GitHubClient(
@@ -147,7 +154,7 @@ class Controller:
         else:
             raise NotImplementedError("Google LLM client is not implemented yet.")
 
-    def perform_review(self):
+    def perform_review(self) -> None:
         """Perform the review."""
         logger.debug("Performing the review.")
         type, response = self._llm_client.review_pr(

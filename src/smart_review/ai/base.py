@@ -3,7 +3,7 @@ import time
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from attrs import define, field
 from github.PullRequestReview import PullRequestReview
@@ -134,7 +134,7 @@ class BaseLLMClient(ABC):
     prompt_template: str = field(default=PROMPT_TEMPLATE, repr=False)
 
     @abstractmethod
-    def _talk_to_llm(self, prompt: str) -> dict:
+    def _talk_to_llm(self, prompt: str) -> dict[str, Any]:
         """Talk to the LLM and get a response."""
         pass
 

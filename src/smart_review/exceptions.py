@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from http import HTTPStatus
-from typing import Optional
+from typing import Any, Optional
 
 from attrs import asdict, define, field
 
@@ -13,16 +13,16 @@ class SmartReviewException(Exception):
     exception_status: int = field(default=HTTPStatus.INTERNAL_SERVER_ERROR.value)
     exception_component: Optional[str] = field(default=None, init=True, repr=True)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
-    def to_json(self):
+    def to_json(self) -> str:
         return json.dumps(self.to_dict())
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps(self.to_dict(), indent=4)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return json.dumps(self.to_dict(), indent=4)
 
 

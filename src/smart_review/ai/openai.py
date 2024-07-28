@@ -1,7 +1,7 @@
 import json
 import logging
 from http import HTTPStatus
-from typing import Optional
+from typing import Any, Optional
 
 import openai
 from attrs import define, field
@@ -17,7 +17,7 @@ SYSTEM_MESSAGE: str = (
 
 
 @define(kw_only=True)
-class OpenAILLMClient(BaseLLMClient):
+class OpenAILLMClient(BaseLLMClient):  # type: ignore[misc]
     openai_api_key: str = field(init=True)
     openai_model: str = field(default="gpt-4o-mini", init=True)
     openai_max_tokens: Optional[int] = field(default=None, init=True)
@@ -26,13 +26,13 @@ class OpenAILLMClient(BaseLLMClient):
     openai_frequency_penalty: Optional[float] = field(default=None, init=True)
     openai_presence_penalty: Optional[float] = field(default=None, init=True)
 
-    def __post_init__(self):
-        self.client = openai.OpenAI(api_key=self.openai_api_key)
+    def __post_init__(self) -> None:
+        self._client = openai.OpenAI(api_key=self.openai_api_key)  # type: ignore[misc]
 
-    def _talk_to_llm(self, prompt: str) -> dict:
+    def _talk_to_llm(self, prompt: str) -> dict[str, Any]:
         try:
             logger.info(f"Sending prompt to OpenAI: {prompt}")
-            response = self.client.chat.completions.create(
+            response = self._client.chat.completions.create(
                 model=self.openai_model,
                 messages=[
                     {"role": "system", "content": SYSTEM_MESSAGE},
@@ -46,13 +46,13 @@ class OpenAILLMClient(BaseLLMClient):
                 response_format={"type": "json_object"},
             )
             # lets get the first response to make things easier
-            response = response.choices[0]
             logger.debug(f"Response from OpenAI: {response}")
-            response_jsn_string = response.message.content
+            message = response.choices[0].message
+            response_jsn_string = message.content
             if not response_jsn_string:
                 return {}
             response_jsn = json.loads(response_jsn_string)
-            return response_jsn
+            return response_jsn  # type: ignore[no-any-return]
         except openai.APITimeoutError as e:
             logger.error(f"OpenAI API Timeout Error: {e}")
             raise SmartReviewLLMException(

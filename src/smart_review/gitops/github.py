@@ -3,7 +3,7 @@ import logging
 from typing import Dict, List
 
 import github
-import requests  # type: ignore[import-untyped]
+import requests
 from attrs import define, field, validators
 from github.Branch import Branch
 from github.Commit import Commit
@@ -18,34 +18,24 @@ from smart_review.exceptions import SmartReviewGithubException
 
 logger = logging.getLogger(__name__)
 
-
 @define
 class NegativeInformation:
     """Information for a negative review."""
-
     body: str = field(init=True, repr=True, validator=validators.instance_of(str))
     commit: Commit = field(init=True, repr=False, validator=validators.instance_of(Commit))
     line_no: int = field(init=True, repr=False, validator=validators.instance_of(int))
     path: str = field(init=True, repr=False, validator=validators.instance_of(str))
-
 
 @define
 class GitHubClient:
     """
     GitHubClient is a class that is used to communicate with the GitHub API.
     """
-
-    # these must be passed in
     api_key: str = field(init=True, repr=False, validator=validators.instance_of(str))
     repo: str = field(init=True, repr=False, validator=validators.instance_of(str))
     owner: str = field(init=True, repr=False, validator=validators.instance_of(str))
-    pr_number: int = field(
-        init=True,
-        repr=False,
-        validator=validators.and_(validators.instance_of(int), validators.ge(1)),
-    )
+    pr_number: int = field(init=True, repr=False, validator=validators.and_(validators.instance_of(int), validators.ge(1)))
 
-    # these are "private" and will be lazy loaded
     _client: github.Github = field(init=False, repr=False)
     _repository: Repository = field(init=False, repr=False)
     _pull_request: PullRequest = field(init=False, repr=False)
@@ -67,7 +57,7 @@ class GitHubClient:
 
     @property
     def repository(self) -> Repository:
-        if not self._repository:
+        if not hasattr(self, '_repository') or self._repository is None:
             self._repository = self._get_repository()
         return self._repository
 
@@ -77,7 +67,7 @@ class GitHubClient:
 
     @property
     def pull_request(self) -> PullRequest:
-        if not self._pull_request:
+        if not hasattr(self, '_pull_request') or self._pull_request is None:
             self._pull_request = self._get_pull_request()
         return self._pull_request
 
@@ -88,7 +78,7 @@ class GitHubClient:
 
     @property
     def destination_branch(self) -> Branch:
-        if not self._destination_branch:
+        if not hasattr(self, '_destination_branch') or self._destination_branch is None:
             self._destination_branch = self._get_destination_branch()
         return self._destination_branch
 
@@ -99,7 +89,7 @@ class GitHubClient:
 
     @property
     def source_branch(self) -> Branch:
-        if not self._source_branch:
+        if not hasattr(self, '_source_branch') or self._source_branch is None:
             self._source_branch = self._get_source_branch()
         return self._source_branch
 
@@ -125,7 +115,7 @@ class GitHubClient:
 
     @property
     def diff_text(self) -> str:
-        if not self._diff_text:
+        if not hasattr(self, '_diff_text') or self._diff_text is None:
             self._diff_text = self._get_diff_text()
         return self._diff_text
 
@@ -136,7 +126,7 @@ class GitHubClient:
 
     @property
     def pr_files(self) -> Dict[str, File]:
-        if not self._pr_files:
+        if not hasattr(self, '_pr_files') or self._pr_files is None:
             self._pr_files = self._get_pr_files()
         return self._pr_files
 
@@ -149,7 +139,7 @@ class GitHubClient:
 
     @property
     def repository_files(self) -> Dict[str, ContentFile]:
-        if not self._repository_files:
+        if not hasattr(self, '_repository_files') or self._repository_files is None:
             self._repository_files = self._get_repository_files()
         return self._repository_files
 
@@ -160,7 +150,7 @@ class GitHubClient:
     @property
     def pr_commits(self) -> List[Commit]:
         logger.debug(f"Getting commits for PR {self.pr_number}")
-        if not self._pr_commits:
+        if not hasattr(self, '_pr_commits') or self._pr_commits is None:
             self._pr_commits = self._get_pr_commits()
         return self._pr_commits
 
@@ -197,7 +187,7 @@ class GitHubClient:
 
     @property
     def context(self) -> str:
-        if not self._context:
+        if not hasattr(self, '_context') or self._context is None:
             self._context = self._get_pr_context()
         return self._context
 

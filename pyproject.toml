@@ -24,7 +24,7 @@ test = [
     "pytest-env",
     "tox",
 ]
-dev = ["ruff", "isort", "bandit", "pre-commit", "mypy"]
+dev = ["ruff", "isort", "bandit", "pre-commit", "mypy", "types-requests"]
 
 [tool.ruff]
 exclude = [

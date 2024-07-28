@@ -104,7 +104,7 @@ class Options:
     )
 
 
-@define
+@define(kw_only=True)
 class Controller:
     """Controller class to interact with the LLM and GitHub."""
 
@@ -125,7 +125,7 @@ class Controller:
         cls, auth_info: AuthenticationInformation, options: Options
     ) -> "Controller":
         """Create a controller."""
-        return cls(_auth_info=auth_info, _options=options)
+        return Controller(_auth_info=auth_info, _options=options)  # type: ignore[call-arg]
 
     def __attrs_post_init__(self):
         # set up the github client, we always need this

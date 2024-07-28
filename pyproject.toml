@@ -26,6 +26,17 @@ test = [
 ]
 dev = ["ruff", "isort", "bandit", "pre-commit", "mypy", "types-requests"]
 
+[project.scripts]
+smart-review = "smart_review.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"] # list of folders that contain the packages (["."] by default)
+include = [
+    "smart_review*",
+] # package names should match these glob patterns (["*"] by default)
+namespaces = false # to disable scanning PEP 420 namespaces (true by default)
+
+
 [tool.ruff]
 exclude = [
     ".bzr",

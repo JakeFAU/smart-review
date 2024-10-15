@@ -1,0 +1,69 @@
+# Bandit configuration file
+
+# List of tests to skip
+skips:
+  - B101  # assert_used
+  - B102  # exec_used
+
+
+# Specify which directories to exclude
+exclude_dirs:
+  - .git
+  - .venv
+  - .mypy_cache
+  - .ruff_cache
+  - .tox
+  - .vscode
+  - build
+  - dist
+  - node_modules
+
+# Specify which files to exclude
+exclude:
+  - __init__.py
+
+# Specify which directories to include
+include_dirs:
+  - src
+
+# Settings for specific tests
+tests:
+  B301:   # pickle usage
+    severity: HIGH
+  B302:   # marshal usage
+    severity: HIGH
+  B403:   # subprocess_without_shell_equals_true
+    severity: HIGH
+  B404:   # subprocess_without_shell_equals_true
+    severity: HIGH
+
+# Severity levels: LOW, MEDIUM, HIGH
+severity:
+  B101: MEDIUM
+  B102: HIGH
+  B301: HIGH
+  B302: HIGH
+
+# Confidence levels: LOW, MEDIUM, HIGH
+confidence:
+  B101: HIGH
+  B102: HIGH
+  B301: HIGH
+  B302: HIGH
+
+# Output settings
+output:
+  format: txt
+  file: bandit_report.txt
+  severity: MEDIUM
+  confidence: MEDIUM
+
+# Specify plugins directory
+plugins:
+  - bandit/plugins
+
+# Other settings
+misc:
+  exclude_tests: []
+  test_files: []
+  test_patterns: ['*.py']

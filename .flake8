@@ -1,0 +1,33 @@
+[flake8]
+# Set the max line length to match black's default
+max-line-length = 99
+
+# Ignore specific rules
+ignore =
+    E203,  # Whitespace before ':'
+    E231,  # Missing whitespace after ','
+    E501,  # Line length
+    W503,  # Line break before binary operator
+
+# Exclude directories
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    .mypy_cache,
+    .ruff_cache,
+    .tox,
+    node_modules,
+    .eggs,
+    .direnv,
+    .vscode
+
+# Enable specific rules
+select =
+    E4,
+    E7,
+    E9,
+    F,
+    W

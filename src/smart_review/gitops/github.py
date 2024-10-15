@@ -3,7 +3,7 @@ import logging
 from typing import Dict, List
 
 import github
-import requests
+import requests  # type: ignore[import-untyped]
 from attrs import define, field, validators
 from github.Branch import Branch
 from github.Commit import Commit
@@ -15,18 +15,9 @@ from github.PullRequestReview import PullRequestReview
 from github.Repository import Repository
 
 from smart_review.exceptions import SmartReviewGithubException
+from smart_review.ai.objects import NegativeReview, LineReview
 
 logger: logging.Logger = logging.getLogger(__name__)
-
-
-@define
-class NegativeInformation:
-    """Information for a negative review."""
-
-    body: str = field(init=True, repr=True, validator=validators.instance_of(str))
-    commit: Commit = field(init=True, repr=False, validator=validators.instance_of(Commit))
-    line_no: int = field(init=True, repr=False, validator=validators.instance_of(int))
-    path: str = field(init=True, repr=False, validator=validators.instance_of(str))
 
 
 @define
@@ -111,7 +102,7 @@ class GitHubClient:
         # get the url
         diff_url = comparison.diff_url
         # we need the headers
-        headers = {"Authorization": self.api_key}
+        headers = {"Authorization": f"Bearer {self.api_key}", "X-GitHub-Api-Version": "2022-11-28"}
         # get the diff
         logger.debug(f"Getting diff from {diff_url}")
         response = requests.get(diff_url, headers=headers)
@@ -171,7 +162,7 @@ class GitHubClient:
         logger.debug(f"Getting contents of file {file.filename}")
         url = file.contents_url
         # we need the headers
-        headers = {"Authorization": self.api_key}
+        headers = {"Authorization": f"Bearer {self.api_key}", "X-GitHub-Api-Version": "2022-11-28"}
         # get the content
         logger.debug(f"Getting content from {url}")
         response = requests.get(url, headers=headers)
@@ -209,31 +200,34 @@ class GitHubClient:
         return review
 
     def create_negative_review_comment(
-        self, negative_info: NegativeInformation
+        self, line_review: LineReview, file_path: str
     ) -> PullRequestComment:
         """Create a negative review comment."""
         logger.debug("Creating a negative review comment.")
         # create the review comment
-        review_body = f"## Smart Review\n\n{negative_info.body}"
+        review_body = f"## Smart Review\n\n{line_review["message"]}"
         # create the review comment
         comment = self.pull_request.create_review_comment(
             body=review_body,
-            path=negative_info.path,
-            line=negative_info.line_no,
-            commit=negative_info.commit,
+            path=file_path,
+            line=line_review["line"],
+            commit=self.latest_commit,
             as_suggestion=False,
         )
+        logger.debug(f"Created comment: {comment}")
         return comment
 
-    def create_negative_review(
-        self, message: str, negative_info: List[NegativeInformation]
-    ) -> PullRequestReview:
+    def create_negative_review(self, negative_review: NegativeReview) -> PullRequestReview:
         """Create a negative review."""
         logger.debug("Creating a negative review.")
         # create the review comment
-        review_comment = f"## Smart Review\n\n{message}"
-        for info in negative_info:
-            self.create_negative_review_comment(info)
+        review_comment = f"## Smart Review\n\n{negative_review.review_message}"
+        for file_review in negative_review.reviews:
+            file_path = file_review["file"]
+            for line_review in file_review["comments"]:
+                comment = self.create_negative_review_comment(line_review, file_path)
+                logger.debug(f"Created comment: {comment}")
         # create the review
         review = self.pull_request.create_review(body=review_comment, event="REQUEST_CHANGES")
+        logger.debug(f"Created review: {review}")
         return review

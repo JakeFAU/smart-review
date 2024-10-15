@@ -26,12 +26,16 @@ class OpenAILLMClient(BaseLLMClient):  # type: ignore[misc]
     openai_frequency_penalty: Optional[float] = field(default=None, init=True)
     openai_presence_penalty: Optional[float] = field(default=None, init=True)
 
-    def __post_init__(self) -> None:
-        self._client = openai.OpenAI(api_key=self.openai_api_key)  # type: ignore[misc]
+    _client: Optional[openai.OpenAI] = field(init=False, repr=False, default=None)
+
+    def __attrs_post_init__(self) -> None:
+        logger.debug("Creating OpenAI client.")
+        self._client = openai.OpenAI(api_key=self.openai_api_key)
 
     def _talk_to_llm(self, prompt: str) -> dict[str, Any]:
         try:
             logger.info(f"Sending prompt to OpenAI: {prompt}")
+            assert self._client is not None
             response = self._client.chat.completions.create(
                 model=self.openai_model,
                 messages=[

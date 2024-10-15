@@ -15,7 +15,15 @@ setup(
         "setuptools",
     ],
     extras_require={
-        "dev": ["ruff", "isort", "bandit", "pre-commit", "mypy", "types-requests"],
+        "dev": [
+            "ruff",
+            "isort",
+            "bandit",
+            "pre-commit",
+            "mypy",
+            "types-requests",
+            "python-dotenv",
+        ],
         "test": [
             "pytest",
             "pytest-cov",

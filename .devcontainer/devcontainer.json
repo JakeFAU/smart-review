@@ -8,7 +8,7 @@
         "ghcr.io/devcontainers-contrib/features/ruff:1": {},
         "ghcr.io/akhildevelops/devcontainer-features/pip:0": {},
         "ghcr.io/hspaans/devcontainer-features/pycqa:1": {},
-        "ghcr.io/hspaans/devcontainer-features/pytest:1": {},
+        "ghcr.io/hspaans/devcontainer-features/pytest:2": {},
         "ghcr.io/devcontainers/features/common-utils:2": {
             "username": "jbourne",
             "userUid": 1001,
